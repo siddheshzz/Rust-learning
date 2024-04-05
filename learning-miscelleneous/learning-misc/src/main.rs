@@ -1,44 +1,34 @@
-//Learnings:
-/*
-1. Type Conversion
-2. User input using stdin
+struct Point<T,U>{
+    x:T,
+    y:U
 
-
-*/
-
-
-
-use::std::io::stdin;
-//recursive
-fn factorial(num:i32) ->i32{
-    if num==0{
-        return 1;
-    }
-    num*factorial(num-1)
 }
 
+impl <T,U> Point<T,U>{
+    fn readout(self)
+    where
+        T: std::fmt::Display,
+        U: std::fmt::Display,   
+    {
+        println!("The point is: {}, {}",self.x,self.y);
 
-fn main() {
-    println!("Factorial");
-
-
-    //Write a programme which finds the factorial of a number entered by the user. (check for all conditions).
-    let mut buffer = String::new();
-
-    println!("Enter the Number");
-
-    stdin().read_line(&mut buffer).expect("Failed to read the input");
-    let mut num:i32=buffer.trim().parse::<i32>().expect("The provided input is not a whole number");
-    let prev_num = num;
-
-    let mut result:i32 = 1;
-    while num>0 {
-        result = result*num;
-        num = num-1;
-        
     }
+    fn add_two(self) ->U
+    where
+            T: std::ops::Add<U, Output = U>,
+    {
+        self.x+self.y
+    }
+}
 
-    println!("The factorial of {} is {}",prev_num,result);
+fn main(){
 
-    println!("Recursicve call for {} is {}",prev_num, factorial(prev_num));
+    let my_int_Point = Point{x:1,y:2};
+    let my_float_Point = Point{x:2.0,y:3.1};
+    let my_mixed_Point = Point{x:1,y:2.4};
+
+    my_mixed_Point.readout();
+
+    println!("{:?}",my_mixed_Point.add_two());
+
 }
