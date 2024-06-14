@@ -1,0 +1,75 @@
+
+fn crystall_ball_excercise(arr:Vec<bool>)->usize{
+    let step = (arr.len() as f32 ).sqrt() as usize;
+    let mut i:usize = step;
+    
+    for mut k in i..6 as usize{
+        if arr[k]==true{
+            break;
+        }
+        k = k+step;
+        i = i + step;
+    }
+    i = i - step;
+    for j in i..i+step{
+        if arr[j] == true{
+            return j
+        }
+    }
+    return -1;
+    
+    
+    
+}
+
+fn main() {
+let value = 5;
+    let a:[i32;6] = [1,2,3,4,5,6];
+    //linear search
+    // for i in a{
+    //     if value == i{
+    //         println!("Gotchaaa! {}",i)
+    //     }
+    // }
+    
+    //binary search
+    println!("{}",binary_search(&a,value));
+    
+    //crystall ball exercise
+    //lEARNING--
+    // You cannot access boolean or matter of fact any array without usize
+    // One needs to have usize to iterate over array
+    // 
+    // 
+    // 
+    // 
+    let arr:Vec<bool> = vec![false,false,false,false,true,true];
+    println!("{}",crystall_ball_excercise(arr));
+    
+}
+
+
+fn binary_search(arr:&[i32],value:i32)->String{
+    
+    let mut low = 0;
+    let mut high = arr.len()-1;
+    
+    
+    while low<high{
+        let mut mid = (low+high/2);
+        let mut temp = arr[mid];
+        if temp == value{
+            return format!("gotcha")
+        }
+        else if temp > value{
+            high = mid-1;
+        }
+        else{
+            low = mid
+        }
+        
+    }
+    return format!("Nope");
+}
+
+.
