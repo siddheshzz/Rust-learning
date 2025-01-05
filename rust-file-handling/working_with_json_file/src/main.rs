@@ -1,3 +1,4 @@
+extern crate serde;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -8,7 +9,7 @@ use std::collections::HashMap;
 /// that both deserialization methods produce equivalent results.
 
 fn deserialize_to_hashmap() {
-    let filename = "data.json";
+    let filename = "./working_with_json_file/data.json";
     let content = std::fs::read_to_string(filename).unwrap();
 
     let leggs: HashMap<String, u32> = serde_json::from_str(&content).unwrap();
@@ -54,7 +55,7 @@ fn serialize_hashmap() {
 fn read_manually_json() {
     //read simple json manually
 
-    let filename = "data2.json";
+    let filename = "./working_with_json_file/data2.json";
     let content = std::fs::read_to_string(filename).unwrap();
     let data: serde_json::Value = serde_json::from_str(&content).expect("Parsing Error JSON");
     println!("data: {data:?}");
@@ -113,7 +114,7 @@ fn read_to_struct_using_from_reader() {
         married: bool,
     }
 
-    let filename = "person.json";
+    let filename = "./working_with_json_file/person.json";
     let content = std::fs::read_to_string(filename).unwrap();
     let person: Person = serde_json::from_str(&content).unwrap();
     println!("person: {person:?}");
@@ -183,7 +184,7 @@ fn optional_fields(){
         String::from("Rust")
     }
 
-    let filename = "person.json";
+    let filename = "./working_with_json_file/person.json";
 
     let content = std::fs::read_to_string(filename).unwrap();
 

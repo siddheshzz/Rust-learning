@@ -2,3 +2,19 @@
 .pdb
 .ENV
 .env
+# Ignore target directories recursively
+**/target/
+
+# Ignore Cargo.lock (only if it's a library crate)
+Cargo.lock
+
+# Ignore editor/IDE specific files
+.idea/
+.vscode/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore Rust backup files
+*.rs.bk
