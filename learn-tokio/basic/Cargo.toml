@@ -1,0 +1,10 @@
+[package]
+name = "basic"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { workspace = true, features = ["full"] }
+
+log.workspace = true
+simple_logger.workspace = true

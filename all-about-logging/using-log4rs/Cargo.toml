@@ -1,0 +1,8 @@
+[package]
+name = "using-log4rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+log4rs.workspace = true
+log.workspace = true
