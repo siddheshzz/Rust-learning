@@ -13,7 +13,8 @@ test
 
 server
 ```
-cargo watch -q -c -w src/ -x run```
+cargo watch -q -c -w src/ -x run
+```
 
 
 Significance of flags =>
