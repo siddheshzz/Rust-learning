@@ -7,11 +7,14 @@ The main file depicts the server of the login application.
 The quick_dev which is a test file acts as a client for the testing purpose.
 
 Command to run =>
-test
-```cargo watch -q -c -w tests -x "test -q quick_dev -- --nocapture"```
+
+**test**
+```
+cargo watch -q -c -w tests -x "test -q quick_dev -- --nocapture"
+```
 
 
-server
+**server**
 ```
 cargo watch -q -c -w src/ -x run
 ```
