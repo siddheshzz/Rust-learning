@@ -4,13 +4,14 @@ pub use self::error::{Error,Result};
 
 use std::net::SocketAddr;
 
-use axum::{extract::{Path, Query}, middleware::{self, map_response}, response::{Html, IntoResponse, Response}, routing::{get, get_service}, Router};
+use axum::{extract::{Path, Query}, http::StatusCode, middleware::{self, map_response}, response::{Html, IntoResponse, Response}, routing::{get, get_service}, Router};
 use serde::Deserialize;
 use tower_cookies::CookieManagerLayer;
 use tower_http::services::{ServeDir, ServeFile};
 
 mod error;
 mod web;
+mod model;
 
 #[derive(Debug,Deserialize)]
 struct HelloParams {
@@ -24,14 +25,25 @@ fn routes_hello() -> Router {
 
 }
 
+/// Start the Axum server and listen for incoming requests on `127.0.0.1:8080`.
+///
+/// The server uses the following routes:
+/// - `/hello` and `/hello2/:name` for testing purposes.
+/// - `/api/login` for logging in.
+/// - All other routes will return a 404 status code and a message indicating that the route was not found.
+///
+/// The server also uses the following middleware layers:
+/// - `tower_cookies::CookieManagerLayer` to manage cookies.
+/// - `tower_http::services::ServeDir` to serve the static files in the `static` directory.
+/// - `axum::middleware::map_response` to map the responses from the routes to the final response sent to the client.
 #[tokio::main]
 async fn main() {
     let route_all = Router::new()
         .merge( routes_hello())
         .merge(web::routes_login::routes())
         .layer(middleware::map_response(main_response_mapper))
-        .layer(CookieManagerLayer::new());
-        // .fallback(route_static());
+        .layer(CookieManagerLayer::new())
+        .fallback(route_static);
     // let addr = SocketAddr::from(([127,0,0,1], 8080));
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await.unwrap();
     println!("Listening on http://{}", listener.local_addr().unwrap());
@@ -57,9 +69,11 @@ async fn handler_hello2(Path(name): Path<String>) -> impl IntoResponse {
     Html(format!("Hello2 <strong>{name}</strong>"))
 }
 
-// fn route_static() -> Router{
-//     Router::new().nest_service("/",ServeDir)
-// }
+#[axum::debug_handler]
+async fn route_static() -> impl IntoResponse {
+    // Router::new().nest_service("/",get_service(ServeDir))
+    (StatusCode::NOT_FOUND, "Not Found 'root' - this should never happen")
+}
 
 
 async fn main_response_mapper(res: Response) -> Response { 
