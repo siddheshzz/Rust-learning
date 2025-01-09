@@ -4,9 +4,10 @@ pub use self::error::{Error,Result};
 
 use std::net::SocketAddr;
 
-use axum::{extract::{Path, Query}, response::{Html, IntoResponse}, routing::{get, get_service}, Router};
+use axum::{extract::{Path, Query}, middleware::{self, map_response}, response::{Html, IntoResponse, Response}, routing::{get, get_service}, Router};
 use serde::Deserialize;
-use tower_http::services::ServeDir;
+use tower_cookies::CookieManagerLayer;
+use tower_http::services::{ServeDir, ServeFile};
 
 mod error;
 mod web;
@@ -28,12 +29,14 @@ async fn main() {
     let route_all = Router::new()
         .merge( routes_hello())
         .merge(web::routes_login::routes())
-        .fallback(route_static());
-    let addr = SocketAddr::from(([127,0,0,1], 8080));
-    println!("Listening on http://{}", addr);
+        .layer(middleware::map_response(main_response_mapper))
+        .layer(CookieManagerLayer::new());
+        // .fallback(route_static());
+    // let addr = SocketAddr::from(([127,0,0,1], 8080));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await.unwrap();
+    println!("Listening on http://{}", listener.local_addr().unwrap());
 
-    axum::Server::bind(&addr)
-        .serve(route_all.into_make_service())
+    axum::serve(listener,route_all.into_make_service())
         .await
         .unwrap();
 
@@ -54,6 +57,15 @@ async fn handler_hello2(Path(name): Path<String>) -> impl IntoResponse {
     Html(format!("Hello2 <strong>{name}</strong>"))
 }
 
-fn route_static() -> Router{
-    Router::new().nest("/",get_service(ServeDir::new("./")))
+// fn route_static() -> Router{
+//     Router::new().nest_service("/",ServeDir)
+// }
+
+
+async fn main_response_mapper(res: Response) -> Response { 
+    println!("->> {:<12} - main_reponse_mapper ","RES_MAPPER");
+    println!();    
+    res
+
+
 }
