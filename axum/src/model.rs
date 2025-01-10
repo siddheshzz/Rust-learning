@@ -51,7 +51,7 @@ impl ModelController {
         let tickets = store.iter().filter_map(|ticket| ticket.clone()).collect();
         Ok(tickets)
     }
-    pub async  fn _delete_ticket(&self, id: u64) -> Result<Ticket> {
+    pub async  fn delete_ticket(&self, id: u64) -> Result<Ticket> {
         let mut store = self.tickets_store.lock().unwrap();
 
         let ticket = store.get_mut(id as usize).and_then(|t| t.take());

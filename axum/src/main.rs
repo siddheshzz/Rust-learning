@@ -4,7 +4,9 @@ pub use self::error::{Error,Result};
 
 use std::net::SocketAddr;
 
+
 use axum::{extract::{Path, Query}, http::StatusCode, middleware::{self, map_response}, response::{Html, IntoResponse, Response}, routing::{get, get_service}, Router};
+use model::ModelController;
 use serde::Deserialize;
 use tower_cookies::CookieManagerLayer;
 use tower_http::services::{ServeDir, ServeFile};
@@ -37,10 +39,18 @@ fn routes_hello() -> Router {
 /// - `tower_http::services::ServeDir` to serve the static files in the `static` directory.
 /// - `axum::middleware::map_response` to map the responses from the routes to the final response sent to the client.
 #[tokio::main]
-async fn main() {
+async fn main() ->Result<()> {
+
+    //initialize the model controller
+    let mc = ModelController::new()?;
+
+
+
+
     let route_all = Router::new()
         .merge( routes_hello())
         .merge(web::routes_login::routes())
+        .nest("/api", web::routes_tickets::routes(mc.clone()))
         .layer(middleware::map_response(main_response_mapper))
         .layer(CookieManagerLayer::new())
         .fallback(route_static);
@@ -52,6 +62,7 @@ async fn main() {
         .await
         .unwrap();
 
+        Ok(())
 }
 
 async fn handle_hello(Query(params): Query<HelloParams>) -> impl IntoResponse {
