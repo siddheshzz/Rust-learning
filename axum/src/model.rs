@@ -35,6 +35,22 @@ impl ModelController {
 }
 
 impl ModelController {
+    /// Create a new ticket with the given title and add it to the store.
+    ///
+    /// Generates a unique ID for the ticket based on the current length of the store.
+    ///
+    /// # Arguments
+    ///
+    /// * `ticket_fc` - A `TicketForCreate` struct containing the title of the ticket to be created.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing the newly created `Ticket` if successful.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if there is an issue locking the ticket store.
+
     pub async  fn create_ticket(&self, ticket_fc: TicketForCreate) -> Result<Ticket> {
         let mut store = self.tickets_store.lock().unwrap();
         let id = store.len() as u64 + 1;
@@ -45,12 +61,31 @@ impl ModelController {
         store.push(Some(ticket.clone()));
         Ok(ticket)
     }
+    /// List all tickets in the store.
+    ///
+    /// The returned list is filtered to only include non-None elements.
     pub async  fn list_tickets(&self) -> Result<Vec<Ticket>> {
         let store = self.tickets_store.lock().unwrap();
 
         let tickets = store.iter().filter_map(|ticket| ticket.clone()).collect();
         Ok(tickets)
     }
+    /// Delete a ticket with the given `id`.
+    ///
+    /// This function will return an error if there is an issue locking the ticket store.
+    ///
+    /// # Arguments
+    ///
+    /// * `id` - The ID of the ticket to be deleted.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing the deleted `Ticket` if successful.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if there is an issue locking the ticket store, or if the
+    /// ticket with the given ID does not exist.
     pub async  fn delete_ticket(&self, id: u64) -> Result<Ticket> {
         let mut store = self.tickets_store.lock().unwrap();
 

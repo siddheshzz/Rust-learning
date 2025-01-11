@@ -4,6 +4,14 @@ use anyhow::Result;
 use axum::http::request;
 use serde_json::json;
 
+    /// Quick smoke test for local dev environment.
+    ///
+    /// This test is disabled by default, as it's not meant to be run on CI
+    /// (in fact, it will fail on CI as it relies on the server running on localhost).
+    ///
+    /// It is meant to be run locally to quickly test the server is running as expected.
+    ///
+
 #[tokio::test]
 async fn quick_dev() -> Result<()> {
 
