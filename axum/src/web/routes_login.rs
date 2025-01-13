@@ -22,6 +22,7 @@ async fn api_login(
 
 	// FIXME: Implement real auth-token generation/signature.
 	let mut cookie = Cookie::new(web::AUTH_TOKEN, "user-1.exp.sign");
+
 	cookie.set_http_only(true);
 	cookie.set_path("/");
 	cookies.add(cookie);

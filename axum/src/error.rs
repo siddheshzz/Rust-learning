@@ -2,13 +2,15 @@ use core::fmt;
 use axum::{http::StatusCode, response::IntoResponse};
 pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug)]
+#[derive(Clone,Debug)]
 pub enum Error{
     LoginFail,
     TicketDeleteFailIdNotFound{id: u64},
 
     // Auth error
     AuthFailNoAuthTokenCookie,
+    AuthFailTokenWrongFormat,
+    AuthFailCtxNotInRequestExt,
 }
 
 impl std::fmt::Display for Error {
