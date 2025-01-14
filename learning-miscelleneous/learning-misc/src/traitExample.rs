@@ -91,6 +91,12 @@ impl Eq for Soda{}
 
 
 
+/// The `main` function demonstrates the creation and manipulation of `Coffee` and `Soda` objects.
+/// It creates a `Coffee` object `latte`, prints its details, consumes it, and prints its details again.
+/// It also creates another `Coffee` object `cappuccino` and prints its data.
+/// Furthermore, it creates a `Soda` object `pepsi`, clones it to `coke`, checks for equality,
+/// consumes `coke`, and prints the details of `coke`.
+
 fn main(){
     let mut latte = Coffee::new("Espresso", Milk::Whole, 8);
     println!("{:?}", latte);

@@ -43,6 +43,28 @@ pub async fn mw_require_auth(
     Ok(next.run(req).await)
 }
 
+/// Middleware to resolve the context from cookies and attach it to the request.
+///
+/// This middleware function extracts the authentication token from the cookies,
+/// validates it, and constructs a `Ctx` object containing the user ID. The `Ctx`
+/// is then stored in the request extensions for further use by downstream handlers.
+/// If the token is missing, an `AuthFailNoAuthTokenCookie` error is returned. If
+/// the token is invalid, it is removed from the cookies, and an appropriate error
+/// is returned.
+///
+/// # Arguments
+///
+/// * `_mc` - The model controller state, currently unused.
+/// * `cookies` - A `Cookies` instance to access the request cookies.
+/// * `ctx` - A `Result<Ctx>` representing the current context, which is checked for errors.
+/// * `req` - The incoming `Request` that will be modified with the extracted context.
+/// * `next` - The next middleware or handler to run if context resolution is successful.
+///
+/// # Returns
+///
+/// Returns a `Result` containing the response. On failure, an error indicating
+/// the issue with the authentication token is returned.
+
 pub async fn mw_ctx_resolver(
     _mc: State<ModelController>,
     cookies: Cookies,
@@ -115,6 +137,11 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx {
     }
 }
 
+/// Parse an authentication token into its three parts: user_id, expiration timestamp, and signature.
+///
+/// # Errors
+///
+/// This function will return an error if the token is not in the expected format.
 fn parse_token(token: String) -> Result<(u64, String, String)> {
     let (_whole, user_id, exp, sign) = regex_captures!(
         r#"^user-(\d+)\.(.+)\.(.+)"#, // a literal regex
