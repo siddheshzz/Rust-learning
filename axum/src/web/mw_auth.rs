@@ -1,13 +1,14 @@
 use crate::ctx::Ctx;
 use crate::model::ModelController;
 use crate::{Error, Result};
+
 use async_trait::async_trait;
 use axum::body::Body;
 use axum::extract::{FromRequestParts, State};
 use axum::http::request::Parts;
 use axum::http::Request;
 use axum::{middleware::Next, response::Response};
-use lazy_regex::{regex, regex_captures};
+use lazy_regex::{ regex_captures};
 use tower_cookies::{Cookie, Cookies};
 
 use crate::web::AUTH_TOKEN;
@@ -32,7 +33,6 @@ use crate::web::AUTH_TOKEN;
 
 pub async fn mw_require_auth(
     ctx: Result<Ctx>,
-    cookies: Cookies,
     req: Request<Body>,
     next: Next,
 ) -> Result<Response> {
@@ -68,12 +68,11 @@ pub async fn mw_require_auth(
 pub async fn mw_ctx_resolver(
     _mc: State<ModelController>,
     cookies: Cookies,
-    ctx: Result<Ctx>,
     mut req: Request<Body>,
     next: Next,
 ) -> Result<Response> {
-    println!("->> {:<12} - mw_ctx_resolver ", "MIDDLEWARE");
-    let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
+    // println!("->> {:<12} - mw_ctx_resolver ", "MIDDLEWARE");
+    // let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
 
     // let result_ctx = match auth_token.ok_or(Error::AuthFailNoAuthTokenCookie).and_then(parse_token){
     //     Ok((user_id, exp, sign)) => Ok(Ctx::new(user_id)),
@@ -87,26 +86,58 @@ pub async fn mw_ctx_resolver(
     // req.extensions_mut().insert(result_ctx?);
     // Ok(next.run(req).await)
     // Compute Result<Ctx>.
-    let result_ctx = match auth_token
-        .ok_or(Error::AuthFailNoAuthTokenCookie)
-        .and_then(parse_token)
-    {
-        Ok((user_id, _exp, _sign)) => {
-            // TODO: Token components validations.
-            Ok(Ctx::new(user_id))
-        }
-        Err(e) => Err(e),
-    };
 
-    // Remove the cookie if something went wrong other than NoAuthTokenCookie.
-    if result_ctx.is_err() && !matches!(result_ctx, Err(Error::AuthFailNoAuthTokenCookie)) {
-        cookies.remove(Cookie::from(AUTH_TOKEN))
-    }
 
-    // Store the ctx_result in the request extension.
-    req.extensions_mut().insert(result_ctx?);
 
-    Ok(next.run(req).await)
+    //NOT WORKING STIUCKS HERE
+    // let result_ctx = match auth_token
+    //     .ok_or(Error::AuthFailNoAuthTokenCookie)
+    //     .and_then(parse_token)
+    // {
+    //     Ok((user_id, _exp, _sign)) => {
+    //         // TODO: Token components validations.
+    //         Ok(Ctx::new(user_id))
+    //     }
+    //     Err(e) => Err(e),
+    // };
+
+    // // Remove the cookie if something went wrong other than NoAuthTokenCookie.
+    // if result_ctx.is_err() && !matches!(result_ctx, Err(Error::AuthFailNoAuthTokenCookie)) {
+    //     cookies.remove(Cookie::from(AUTH_TOKEN))
+    // }
+
+    // // Store the ctx_result in the request extension.
+    // req.extensions_mut().insert(result_ctx?);
+
+    // Ok(next.run(req).await)
+
+    println!("->> {:<12} - mw_ctx_resolver", "MIDDLEWARE");
+
+	let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
+
+	// Compute Result<Ctx>.
+	let result_ctx = match auth_token
+		.ok_or(Error::AuthFailNoAuthTokenCookie)
+		.and_then(parse_token)
+	{
+		Ok((user_id, _exp, _sign)) => {
+			// TODO: Token components validations.
+			Ok(Ctx::new(user_id))
+		}
+		Err(e) => Err(e),
+	};
+
+	// Remove the cookie if something went wrong other than NoAuthTokenCookie.
+	if result_ctx.is_err()
+		&& !matches!(result_ctx, Err(Error::AuthFailNoAuthTokenCookie))
+	{
+		cookies.remove(Cookie::from(AUTH_TOKEN))
+	}
+
+	// Store the ctx_result in the request extension.
+	req.extensions_mut().insert(result_ctx);
+
+	Ok(next.run(req).await)
 }
 
 #[async_trait]
