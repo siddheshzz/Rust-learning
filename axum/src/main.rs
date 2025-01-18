@@ -32,6 +32,11 @@ struct HelloParams {
     name: Option<String>,
 }
 
+/// Creates a new Router with two routes:
+///
+/// * `/hello` - A route that responds with a greeting message, handled by `handle_hello`.
+/// * `/hello2/:name` - A route that responds with a personalized greeting, handled by `handler_hello2`.
+
 fn routes_hello() -> Router {
     Router::new()
         .route("/hello", get(handle_hello))
