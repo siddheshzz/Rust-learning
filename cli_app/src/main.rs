@@ -1,5 +1,4 @@
 mod commands;
-
 use clap::Command;
 
 pub fn main() -> anyhow::Result<()> {
