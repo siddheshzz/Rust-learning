@@ -39,4 +39,6 @@ fn main() {
     a.insert(4);
     a.insert(5);
     a.print_vals();
+
+    
 }
