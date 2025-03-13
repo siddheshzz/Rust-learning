@@ -3,11 +3,11 @@
 version = 4
 
 [[package]]
-name = "RustProblemSolving"
+name = "graph"
 version = "0.1.0"
 
 [[package]]
-name = "graph"
+name = "problem-solving"
 version = "0.1.0"
 
 [[package]]

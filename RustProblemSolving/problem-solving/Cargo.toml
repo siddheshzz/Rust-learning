@@ -1,0 +1,16 @@
+[package]
+name = "problem-solving"
+version = "0.1.0"
+edition = "2021"
+description = "Collection of algorithm and problem-solving solutions"
+
+[dependencies]
+# Add specific dependencies as needed
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "problem-solving"
+path = "src/main.rs"
+
