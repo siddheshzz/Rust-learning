@@ -1,17 +1,11 @@
-use std::{thread, time::Duration,thread::sleep};
-
+mod prelude;
+mod simple_threads;
+mod simple_mutex;
+mod simple_atomic_types;
 fn main() {
-    let mut threads = vec![];
-    for i in 0..10 {
-        let th = thread::spawn(move|| {
-            sleep(Duration::from_millis(100));
-            println!("Hello, world! from {}",i);
-        });
-        threads.push(th)
-    }
+    simple_threads::simpleThreads();
+    simple_mutex::simple_mutex();
+    simple_atomic_types::simple_atomic_types();
 
-    for t in threads{
-        t.join();
-    }
-    println!("Main thread");
+
 }

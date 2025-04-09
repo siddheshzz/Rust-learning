@@ -1,0 +1,9 @@
+[package]
+name = "compare_excel_data"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+polars = { version = "0.46.0" }
+rayon = "1.7"
+
