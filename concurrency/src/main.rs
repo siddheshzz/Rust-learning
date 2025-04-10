@@ -7,5 +7,4 @@ fn main() {
     simple_mutex::simple_mutex();
     simple_atomic_types::simple_atomic_types();
 
-
 }
