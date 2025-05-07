@@ -1,83 +1,67 @@
 use polars::prelude::*;
+use std::collections::HashSet;
+use std::error::Error;
+use std::fs::File;
 
-fn main(){
-    
+fn df_to_row_set(df: &DataFrame) -> HashSet<Vec<String>> {
+    let mut rows = HashSet::new();
+    for i in 0..df.height() {
+        let row: Vec<String> = df
+            .get_columns()
+            .iter()
+            .map(|s| s.get(i).unwrap().to_string())
+            .collect();
+        rows.insert(row);
+    }
+    rows
 }
 
+fn main() -> Result<(), Box<dyn Error>> {
+    // Load the CSV files into DataFrames
+    let df1 = CsvReader::from_path("c1.csv")?
+        .infer_schema(None)
+        .has_header(true)
+        .finish()?;
 
+    let df2 = CsvReader::from_path("c2.csv")?
+        .infer_schema(None)
+        .has_header(true)
+        .finish()?;
 
+    // Convert to sets of rows
+    let set1 = df_to_row_set(&df1);
+    let set2 = df_to_row_set(&df2);
 
+    // Rows in df1 not in df2 and vice versa
+    let only_in_1 = set1.difference(&set2);
+    let only_in_2 = set2.difference(&set1);
 
+    // Combine differences
+    let all_diffs: Vec<Vec<String>> = only_in_1.chain(only_in_2).cloned().collect();
 
+    if all_diffs.is_empty() {
+        println!("No differences found.");
+        return Ok(());
+    }
 
+    // Rebuild a DataFrame from rows
+    let headers: Vec<String> = df1.get_column_names().iter().map(|s| s.to_string()).collect();
+    let columns: Vec<Series> = (0..headers.len())
+        .map(|col_idx| {
+            let col_values: Vec<&str> = all_diffs.iter().map(|row| row[col_idx].as_str()).collect();
+            Series::new(&headers[col_idx], col_values)
+        })
+        .collect();
 
-// use polars::prelude::*;
-// use rayon::prelude::*;
-// use std::error::Error;
-// use std::fs::File;
-// use std::io::Write;
+    let mut diff_df = DataFrame::new(columns)?;
 
-// fn create_primary_key(df: &DataFrame, cols: &[&str]) -> Result<Series, Box<dyn Error>> {
-//     let mut key = Vec::new();
-//     for col in cols {
-//         let series = df.column(*col)?.utf8()?.to_vec(); // Assuming text data
-//         key.push(series);
-//     }
-//     let combined = Series::new("primary_key", key.into_iter().flatten().collect::<Vec<_>>());
-//     Ok(combined)
-// }
+    // Write the differences to a CSV
+    let mut file = File::create("diff.csv")?;
+    CsvWriter::new(&mut file)
+        .include_header(true)
+        .finish(&mut diff_df)?;
 
-// fn compare_dataframes(df1: &DataFrame, df2: &DataFrame) -> Result<(), Box<dyn Error>> {
-//     if df1.shape() != df2.shape() {
-//         println!("DataFrames have different shapes: {:?} vs {:?}", df1.shape(), df2.shape());
-//         return Ok(());
-//     }
+    println!("Differences written to diff.csv");
 
-//     let mut report = Vec::new();
-
-//     // Compare rows
-//     for row in 0..df1.height() {
-//         let row1 = df1.get_row(row)?;
-//         let row2 = df2.get_row(row)?;
-
-//         for (col, (val1, val2)) in row1.iter().zip(row2.iter()).enumerate() {
-//             if val1 != val2 {
-//                 report.push(format!("Difference found at row {}, column {}: {:?} vs {:?}", row, col, val1, val2));
-//             }
-//         }
-//     }
-
-//     // Write the report to a file
-//     let mut file = File::create("comparison_report.txt")?;
-//     for entry in report {
-//         writeln!(file, "{}", entry)?;
-//     }
-
-//     Ok(())
-// }
-
-// fn main() -> Result<(), Box<dyn Error>> {
-//     // Read the CSV files
-//     let df1 = CsvReader::from_path("file1.csv")?.has_header(true).finish()?;
-//     let df2 = CsvReader::from_path("file2.csv")?.has_header(true).finish()?;
-
-//     // Define primary key columns for sorting
-//     let key_columns = vec!["column1", "column2"]; // Adjust based on your schema
-
-//     // Create primary keys
-//     let key1 = create_primary_key(&df1, &key_columns)?;
-//     let key2 = create_primary_key(&df2, &key_columns)?;
-
-//     // Add primary key as a new column
-//     let df1 = df1.hstack(&[key1])?;
-//     let df2 = df2.hstack(&[key2])?;
-
-//     // Sort DataFrames by primary key
-//     let df1 = df1.sort("primary_key", false)?;
-//     let df2 = df2.sort("primary_key", false)?;
-
-//     // Compare the DataFrames
-//     compare_dataframes(&df1, &df2)?;
-
-//     Ok(())
-// }
+    Ok(())
+}

@@ -1,9 +1,8 @@
 [package]
 name = "compare_excel_data"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-polars = { version = "0.46.0" }
-rayon = "1.7"
-
+polars = { version = "0.36.0", features = [ "lazy", "csv"] }
+tokio = { version = "1", features = ["full"] }
