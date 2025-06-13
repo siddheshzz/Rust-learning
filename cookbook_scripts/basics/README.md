@@ -2,4 +2,4 @@ Content Summary
 - Concat
 - Format macro use
 - Constructor Patterns
-- Default
+- Default::default
