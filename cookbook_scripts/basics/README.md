@@ -3,3 +3,4 @@ Content Summary
 - Format macro use
 - Constructor Patterns
 - Default::default
+- Builder patterns
