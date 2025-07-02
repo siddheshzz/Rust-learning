@@ -4,3 +4,4 @@ Content Summary
 - Constructor Patterns
 - Default::default
 - Builder patterns
+- random rand crate
